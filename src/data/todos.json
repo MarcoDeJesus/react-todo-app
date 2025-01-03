@@ -1,0 +1,13 @@
+[
+    {
+      "id": 1,
+      "text": "Learn React",
+      "completed": false
+    },
+    {
+      "id": 2,
+      "text": "Build a To-Do App",
+      "completed": false
+    }
+  ]
+  
