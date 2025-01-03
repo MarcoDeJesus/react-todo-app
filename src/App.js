@@ -60,17 +60,38 @@ const App = () => {
     }
   };
   
-  
+
   // Toggle a todo (completed state)
   const toggleTodo = async (id) => {
-    const updatedTodo = await fetch(`/todos/${id}`, { method: 'PATCH' });
-    const updatedTodoData = await updatedTodo.json();
-    setTodos((prevTodos) =>
-      prevTodos.map((todo) =>
-        todo.id === id ? { ...todo, completed: updatedTodoData.completed } : todo
-      )
-    );
+    try {
+      const todoToUpdate = todos.find(todo => todo.id === id);
+      const updatedTodoData = { ...todoToUpdate, completed: !todoToUpdate.completed };
+  
+      const response = await fetch(`http://localhost:3000/todos/${id}`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(updatedTodoData),
+      });
+  
+      if (!response.ok) {
+        throw new Error(`Error updating todo: ${response.statusText}`);
+      }
+  
+      const updatedTodo = await response.json();
+      console.log('Updated Todo:', updatedTodo);
+  
+      // Update the local state
+      setTodos(prevTodos =>
+        prevTodos.map(todo => (todo.id === updatedTodo.id ? updatedTodo : todo))
+      );
+    } catch (error) {
+      console.error('Error updating todo:', error);
+    }
   };
+  
+
 
   // Delete a todo
   const deleteTodo = async (id) => {
