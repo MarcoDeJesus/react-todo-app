@@ -6,7 +6,14 @@ const TodoForm = ({ onAdd }) => {
   const handleSubmit = (e) => {
     e.preventDefault();
     if (text.trim()) {
-      onAdd(text);
+      const newTodo = { 
+        text: text, 
+        completed: false, 
+        // Add an id or generate one (or let the server handle the id)
+        // For simplicity, we'll use the current timestamp as a pseudo-id
+        id: Date.now() 
+      };
+      onAdd(newTodo);  // Passing the whole newTodo object to onAdd
       setText('');
     }
   };
@@ -31,3 +38,4 @@ const TodoForm = ({ onAdd }) => {
 };
 
 export default TodoForm;
+
