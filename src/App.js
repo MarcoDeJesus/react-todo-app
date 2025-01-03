@@ -1,14 +1,52 @@
 import React, { useState, useEffect } from 'react';
 import TodoList from './components/TodoList';
 import TodoForm from './components/TodoForm';
-import todosData from './data/todos.json';
+
+// Mock server (simulate todos.json as API)
+const mockApi = {
+  fetchTodos: () =>
+    new Promise((resolve) => {
+      setTimeout(() => {
+        resolve([
+          { id: 1, text: 'Learn React', completed: false },
+          { id: 2, text: 'Build a To-Do App', completed: false },
+        ]);
+      }, 500); // Simulate network delay
+    }),
+  addTodo: (todo) =>
+    new Promise((resolve) => {
+      setTimeout(() => {
+        resolve(todo); // Simulates successful server addition
+      }, 500);
+    }),
+  toggleTodo: (id, todos) =>
+    new Promise((resolve) => {
+      setTimeout(() => {
+        const updatedTodos = todos.map((todo) =>
+          todo.id === id ? { ...todo, completed: !todo.completed } : todo
+        );
+        resolve(updatedTodos);
+      }, 500);
+    }),
+  deleteTodo: (id, todos) =>
+    new Promise((resolve) => {
+      setTimeout(() => {
+        const updatedTodos = todos.filter((todo) => todo.id !== id);
+        resolve(updatedTodos);
+      }, 500);
+    }),
+};
 
 const App = () => {
   const [todos, setTodos] = useState([]);
+  const [loading, setLoading] = useState(true);
 
-  // Simulate server fetch
   useEffect(() => {
-    setTodos(todosData);
+    // Fetch todos from mock API
+    mockApi.fetchTodos().then((data) => {
+      setTodos(data);
+      setLoading(false);
+    });
   }, []);
 
   const handleAdd = (text) => {
@@ -17,20 +55,31 @@ const App = () => {
       text,
       completed: false,
     };
-    setTodos([...todos, newTodo]);
+
+    mockApi.addTodo(newTodo).then((addedTodo) => {
+      setTodos((prevTodos) => [...prevTodos, addedTodo]);
+    });
   };
 
   const handleToggle = (id) => {
-    setTodos(
-      todos.map((todo) =>
-        todo.id === id ? { ...todo, completed: !todo.completed } : todo
-      )
-    );
+    setLoading(true);
+    mockApi.toggleTodo(id, todos).then((updatedTodos) => {
+      setTodos(updatedTodos);
+      setLoading(false);
+    });
   };
 
   const handleDelete = (id) => {
-    setTodos(todos.filter((todo) => todo.id !== id));
+    setLoading(true);
+    mockApi.deleteTodo(id, todos).then((updatedTodos) => {
+      setTodos(updatedTodos);
+      setLoading(false);
+    });
   };
+
+  if (loading) {
+    return <div>Loading...</div>;
+  }
 
   return (
     <div className="min-h-screen bg-gray-100 flex items-center justify-center">
